@@ -9,6 +9,8 @@
 
 <body>
 <div class="app">
+
+<!-- Sidebar -->
 <aside class="sidebar">
 <div class="brand">Support System</div>
 <nav class="nav">
@@ -18,7 +20,9 @@
 </nav>
 </aside>
 
+<!-- Main Content -->
 <main class="content">
+
 <div class="page-header">
 <div>
 <h1 class="page-title">Dashboard</h1>
@@ -27,6 +31,7 @@
 <a class="btn btn--ghost" href="ticket.html">Create Ticket</a>
 </div>
 
+<!-- Metrics Cards -->
 <section class="cards">
 <div class="card">
 <h3>Total Tickets</h3>
@@ -42,10 +47,59 @@
 </div>
 </section>
 
+<!-- Recent Tickets Table -->
+<div class="table-wrap">
+<h3>Recent Tickets</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Module</th>
+<th>Issue</th>
+<th>Priority</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="recentTickets"></tbody>
+</table>
+</div>
+
 <p id="dashboardStatus" class="status-text"></p>
+
 </main>
 </div>
 
 <script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    if (typeof fetchDashboardStats === "function") fetchDashboardStats();
+
+    // Display last 5 tickets in dashboard table
+    try {
+        let response = await fetch("http://localhost:5000/tickets");
+        let tickets = await response.json();
+        let table = document.getElementById("recentTickets");
+        table.innerHTML = "";
+
+        let recent = tickets.slice(-5).reverse();
+        recent.forEach(t => {
+            table.innerHTML += `
+            <tr>
+                <td>${t._id}</td>
+                <td>${t.module}</td>
+                <td>${t.issue}</td>
+                <td><span class="badge ${getPriorityClass(t.priority)}">${t.priority}</span></td>
+                <td><span class="badge ${getStatusClass(t.status)}">${t.status}</span></td>
+                <td>
+                    <button class="btn btn--edit" onclick="editTicket('${t._id}')" ${t.status === "Resolved" ? "disabled" : ""}>Edit</button>
+                </td>
+            </tr>`;
+        });
+    } catch (error) {
+        console.error(error);
+    }
+});
+</script>
 </body>
 </html>

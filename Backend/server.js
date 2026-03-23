@@ -163,6 +163,34 @@ res.json(ticket);
 
 });
 
+app.put("/tickets/:id", async (req, res) => {
+    try {
+        const { module, issue, urgency, blocked } = req.body;
+
+        // Recalculate priority
+        let priority;
+        if(issue==="System Error" && urgency==="High")
+            priority="Critical";
+        else if(blocked==="Yes")
+            priority="High";
+        else if(issue==="Bug")
+            priority="Medium";
+        else
+            priority="Low";
+
+        // Update ticket
+        const ticket = await Ticket.findByIdAndUpdate(
+            req.params.id,
+            { module, issue, urgency, blocked, priority },
+            { new: true }
+        );
+
+        res.json(ticket);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to update ticket" });
+    }
+});
 
 
 /* ---------------- START SERVER ---------------- */

@@ -93,6 +93,37 @@ setHtml("ticketTable", `<tr><td colspan="7">No tickets found</td></tr>`);
 return;
 }
 
+async function editTicket(id) {
+    // Fetch current ticket details first (optional, or use form prefill)
+    let module = prompt("Enter module name (current value kept if empty):");
+    if (module === null) return; // cancel
+
+    let issue = prompt("Enter issue type (current value kept if empty):");
+    if (issue === null) return;
+
+    let urgency = prompt("Enter urgency (High/Medium/Low):");
+    if (urgency === null) return;
+
+    let blocked = prompt("Is it blocked? (Yes/No):");
+    if (blocked === null) return;
+
+    try {
+        let response = await fetch(`${API_BASE_URL}/tickets/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ module, issue, urgency, blocked })
+        });
+
+        let data = await response.json();
+        alert(`Ticket updated!\nPriority: ${data.priority || "N/A"}\nStatus: ${data.status}`);
+        fetchTickets(); // refresh table
+        fetchDashboardStats(); // refresh dashboard stats
+    } catch (error) {
+        console.error(error);
+        alert("Error updating ticket. Please try again.");
+    }
+}
+
 setHtml("ticketTable", tickets.map(ticket => `
 <tr>
 <td>${ticket._id}</td>
@@ -104,6 +135,11 @@ setHtml("ticketTable", tickets.map(ticket => `
 <td>
 <button class="btn btn--ghost" onclick="escalate('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Escalate</button>
 <button class="btn btn--primary" onclick="resolveTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Resolve</button>
+</td>
+<td>
+  <button class="btn btn--ghost" onclick="escalate('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Escalate</button>
+  <button class="btn btn--primary" onclick="resolveTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Resolve</button>
+  <button class="btn btn--edit" onclick="editTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Edit</button>
 </td>
 </tr>
 `).join(""));

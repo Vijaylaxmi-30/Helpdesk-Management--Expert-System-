@@ -9,6 +9,8 @@
 
 <body>
 <div class="app">
+
+<!-- Sidebar -->
 <aside class="sidebar">
 <div class="brand">Support System</div>
 <nav class="nav">
@@ -18,7 +20,9 @@
 </nav>
 </aside>
 
+<!-- Main Content -->
 <main class="content">
+
 <div class="page-header">
 <div>
 <h1 class="page-title">Ticket History</h1>
@@ -45,9 +49,15 @@
 <tbody id="ticketTable"></tbody>
 </table>
 </div>
+
 </main>
 </div>
 
 <script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof fetchTickets === "function") fetchTickets();
+});
+</script>
 </body>
 </html>
