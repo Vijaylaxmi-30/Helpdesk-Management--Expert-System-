@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Support System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">Support System</div>
+<nav class="nav">
+<a class="is-active" href="index.html">Dashboard</a>
+<a href="ticket.html">Raise Ticket</a>
+<a href="history.html">Ticket History</a>
+</nav>
+</aside>
+
+<main class="content">
+<div class="page-header">
+<div>
+<h1 class="page-title">Dashboard</h1>
+<p class="subtext">Live view of ticket activity from the expert system.</p>
+</div>
+<a class="btn btn--ghost" href="ticket.html">Create Ticket</a>
+</div>
+
+<section class="cards">
+<div class="card">
+<h3>Total Tickets</h3>
+<p id="totalTickets" class="metric">0</p>
+</div>
+<div class="card">
+<h3>Open Tickets</h3>
+<p id="openTickets" class="metric">0</p>
+</div>
+<div class="card">
+<h3>Resolved Tickets</h3>
+<p id="closedTickets" class="metric">0</p>
+</div>
+</section>
+
+<p id="dashboardStatus" class="status-text"></p>
+</main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

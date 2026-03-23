@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raise Ticket</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">Support System</div>
+<nav class="nav">
+<a href="index.html">Dashboard</a>
+<a class="is-active" href="ticket.html">Raise Ticket</a>
+<a href="history.html">Ticket History</a>
+</nav>
+</aside>
+
+<main class="content">
+<div class="page-header">
+<div>
+<h1 class="page-title">Raise Ticket</h1>
+<p class="subtext">Share the issue details so the expert rules can assign a priority.</p>
+</div>
+<a class="btn btn--ghost" href="history.html">View History</a>
+</div>
+
+<section class="panel">
+<div class="form-grid">
+<div class="form-field">
+<label for="module">Module</label>
+<select id="module">
+<option>Authentication</option>
+<option>Payment</option>
+<option>Database</option>
+<option>UI</option>
+</select>
+</div>
+
+<div class="form-field">
+<label for="issue">Issue Type</label>
+<select id="issue">
+<option>Bug</option>
+<option>Performance Issue</option>
+<option>System Error</option>
+<option>Feature Request</option>
+</select>
+</div>
+
+<div class="form-field">
+<label for="urgency">Urgency</label>
+<select id="urgency">
+<option>Low</option>
+<option>Medium</option>
+<option>High</option>
+</select>
+</div>
+
+<div class="form-field">
+<label for="blocked">Work Blocked?</label>
+<select id="blocked">
+<option>No</option>
+<option>Yes</option>
+</select>
+</div>
+</div>
+
+<div class="actions">
+<button id="submitTicket" class="btn btn--primary" type="button" onclick="createTicket()">Submit Ticket</button>
+<a class="btn btn--ghost" href="index.html">Back to Dashboard</a>
+</div>
+
+<div id="result" class="result">Fill out the form to create a new ticket.</div>
+</section>
+</main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

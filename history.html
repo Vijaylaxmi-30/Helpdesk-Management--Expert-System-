@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket History</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">Support System</div>
+<nav class="nav">
+<a href="index.html">Dashboard</a>
+<a href="ticket.html">Raise Ticket</a>
+<a class="is-active" href="history.html">Ticket History</a>
+</nav>
+</aside>
+
+<main class="content">
+<div class="page-header">
+<div>
+<h1 class="page-title">Ticket History</h1>
+<p class="subtext">Track every ticket raised through the expert system.</p>
+</div>
+<a class="btn btn--ghost" href="ticket.html">Raise Ticket</a>
+</div>
+
+<p id="historyStatus" class="status-text"></p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Ticket ID</th>
+<th>Module</th>
+<th>Issue</th>
+<th>Priority</th>
+<th>Status</th>
+<th>Suggested Solution</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="ticketTable"></tbody>
+</table>
+</div>
+</main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
