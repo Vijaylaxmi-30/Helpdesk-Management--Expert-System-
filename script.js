@@ -93,37 +93,6 @@ setHtml("ticketTable", `<tr><td colspan="7">No tickets found</td></tr>`);
 return;
 }
 
-async function editTicket(id) {
-    // Fetch current ticket details first (optional, or use form prefill)
-    let module = prompt("Enter module name (current value kept if empty):");
-    if (module === null) return; // cancel
-
-    let issue = prompt("Enter issue type (current value kept if empty):");
-    if (issue === null) return;
-
-    let urgency = prompt("Enter urgency (High/Medium/Low):");
-    if (urgency === null) return;
-
-    let blocked = prompt("Is it blocked? (Yes/No):");
-    if (blocked === null) return;
-
-    try {
-        let response = await fetch(`${API_BASE_URL}/tickets/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ module, issue, urgency, blocked })
-        });
-
-        let data = await response.json();
-        alert(`Ticket updated!\nPriority: ${data.priority || "N/A"}\nStatus: ${data.status}`);
-        fetchTickets(); // refresh table
-        fetchDashboardStats(); // refresh dashboard stats
-    } catch (error) {
-        console.error(error);
-        alert("Error updating ticket. Please try again.");
-    }
-}
-
 setHtml("ticketTable", tickets.map(ticket => `
 <tr>
 <td>${ticket._id}</td>
@@ -135,14 +104,91 @@ setHtml("ticketTable", tickets.map(ticket => `
 <td>
 <button class="btn btn--ghost" onclick="escalate('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Escalate</button>
 <button class="btn btn--primary" onclick="resolveTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Resolve</button>
-</td>
-<td>
-  <button class="btn btn--ghost" onclick="escalate('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Escalate</button>
-  <button class="btn btn--primary" onclick="resolveTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Resolve</button>
-  <button class="btn btn--edit" onclick="editTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Edit</button>
+<button class="btn btn--edit" onclick="editTicket('${ticket._id}')" ${ticket.status === "Resolved" ? "disabled" : ""}>Edit</button>
 </td>
 </tr>
 `).join(""));
+}
+
+async function editTicket(id) {
+let current;
+try {
+let res = await fetch(`${API_BASE_URL}/tickets/${id}`);
+if (!res.ok) {
+alert("Could not load ticket.");
+return;
+}
+current = await res.json();
+} catch (error) {
+console.error(error);
+alert("Could not load ticket.");
+return;
+}
+
+let module = prompt("Module name:", current.module);
+if (module === null) return;
+module = String(module).trim() === "" ? current.module : String(module).trim();
+
+let issue = prompt("Issue type:", current.issue);
+if (issue === null) return;
+issue = String(issue).trim() === "" ? current.issue : String(issue).trim();
+
+let urgency = prompt("Urgency (High / Medium / Low):", current.urgency);
+if (urgency === null) return;
+urgency = String(urgency).trim() === "" ? current.urgency : String(urgency).trim();
+
+let blocked = prompt("Blocked? (Yes / No):", current.blocked);
+if (blocked === null) return;
+blocked = String(blocked).trim() === "" ? current.blocked : String(blocked).trim();
+
+try {
+let response = await fetch(`${API_BASE_URL}/tickets/${id}`, {
+method: "PUT",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ module, issue, urgency, blocked })
+});
+
+if (!response.ok) {
+let err = await response.json().catch(() => ({}));
+alert(err.error || "Update failed.");
+return;
+}
+
+let data = await response.json();
+alert(`Ticket updated!\nPriority: ${data.priority || "N/A"}\nStatus: ${data.status}`);
+fetchTickets();
+fetchDashboardStats();
+renderDashboardRecentTickets();
+} catch (error) {
+console.error(error);
+alert("Error updating ticket. Please try again.");
+}
+}
+
+async function renderDashboardRecentTickets() {
+let tbody = getEl("recentTickets");
+if (!tbody) return;
+try {
+let response = await fetch(`${API_BASE_URL}/tickets`);
+let tickets = await response.json();
+tbody.innerHTML = "";
+let recent = tickets.slice(-5).reverse();
+recent.forEach(t => {
+tbody.innerHTML += `
+<tr>
+<td>${t._id}</td>
+<td>${t.module}</td>
+<td>${t.issue}</td>
+<td><span class="badge ${getPriorityClass(t.priority)}">${t.priority}</span></td>
+<td><span class="badge ${getStatusClass(t.status)}">${t.status}</span></td>
+<td>
+<button class="btn btn--edit" onclick="editTicket('${t._id}')" ${t.status === "Resolved" ? "disabled" : ""}>Edit</button>
+</td>
+</tr>`;
+});
+} catch (error) {
+console.error(error);
+}
 }
 
 async function escalate(id) {
@@ -194,5 +240,6 @@ fetchTickets();
 }
 if (getEl("totalTickets")) {
 fetchDashboardStats();
+renderDashboardRecentTickets();
 }
 });

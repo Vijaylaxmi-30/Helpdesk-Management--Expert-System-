@@ -15,13 +15,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/supportSystem")
 .then(()=>console.log("MongoDB Connected"));
 
 
-
-/* ---------------- CREATE TICKET ---------------- */
-
-app.post("/tickets", async (req,res)=>{
-
-let {module,issue,urgency,blocked} = req.body;
-
+function computePriorityAndSolution(module, issue, urgency, blocked) {
 let priority;
 let suggestedSolution;
 
@@ -91,6 +85,18 @@ suggestedSolution="Provide a workaround if possible and escalate the ticket.";
 else if (!suggestedSolution)
 suggestedSolution="Collect more details from the requester and monitor for patterns.";
 
+return { priority, suggestedSolution };
+}
+
+
+/* ---------------- CREATE TICKET ---------------- */
+
+app.post("/tickets", async (req,res)=>{
+
+let {module,issue,urgency,blocked} = req.body;
+
+const { priority, suggestedSolution } = computePriorityAndSolution(module, issue, urgency, blocked);
+
 let ticket = new Ticket({
 module,
 issue,
@@ -116,6 +122,20 @@ let tickets = await Ticket.find();
 
 res.json(tickets);
 
+});
+
+
+/* ---------------- GET SINGLE TICKET ---------------- */
+
+app.get("/tickets/:id", async (req, res) => {
+try {
+let ticket = await Ticket.findById(req.params.id);
+if (!ticket) return res.status(404).json({ error: "Ticket not found" });
+res.json(ticket);
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: "Failed to fetch ticket" });
+}
 });
 
 
@@ -164,32 +184,23 @@ res.json(ticket);
 });
 
 app.put("/tickets/:id", async (req, res) => {
-    try {
-        const { module, issue, urgency, blocked } = req.body;
+try {
+const { module, issue, urgency, blocked } = req.body;
+const { priority, suggestedSolution } = computePriorityAndSolution(module, issue, urgency, blocked);
 
-        // Recalculate priority
-        let priority;
-        if(issue==="System Error" && urgency==="High")
-            priority="Critical";
-        else if(blocked==="Yes")
-            priority="High";
-        else if(issue==="Bug")
-            priority="Medium";
-        else
-            priority="Low";
+let ticket = await Ticket.findByIdAndUpdate(
+req.params.id,
+{ module, issue, urgency, blocked, priority, suggestedSolution },
+{ new: true }
+);
 
-        // Update ticket
-        const ticket = await Ticket.findByIdAndUpdate(
-            req.params.id,
-            { module, issue, urgency, blocked, priority },
-            { new: true }
-        );
+if (!ticket) return res.status(404).json({ error: "Ticket not found" });
 
-        res.json(ticket);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to update ticket" });
-    }
+res.json(ticket);
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: "Failed to update ticket" });
+}
 });
 
 
